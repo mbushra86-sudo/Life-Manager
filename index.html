@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0a14">
+<title>مدير اليوم</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="يومي">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#07060d}
+.app{direction:rtl;font-family:'Almarai',sans-serif;color:#ececf2;min-height:100vh;
+  padding:env(safe-area-inset-top) 0 130px;position:relative;overflow-x:hidden;transition:background 1.5s ease}
+.mono{font-family:'Sora',sans-serif;font-variant-numeric:tabular-nums}
+.sky{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;top:60px;left:8%;width:130px;height:130px;border-radius:50%;filter:blur(10px);opacity:.5;animation:float 10s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(16px)}}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:0;animation:tw 4s infinite}
+@keyframes tw{0%,100%{opacity:0}50%{opacity:.85}}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.045;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.wrap{max-width:860px;margin:0 auto;padding:18px 16px;position:relative;z-index:2}
+.top{display:flex;align-items:center;gap:13px;background:rgba(20,20,28,.5);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.09);border-radius:22px;padding:14px 16px;margin-bottom:14px}
+.top .logo{flex-shrink:0;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+.top .who{flex:1;min-width:0}
+.top .who .g{font-size:18px;font-weight:800;line-height:1.2}
+.top .who .sub{font-size:11.5px;color:#b8b8c8;margin-top:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.chip{font-size:10.5px;background:rgba(255,255,255,.07);padding:2px 9px;border-radius:20px;border:1px solid rgba(255,255,255,.1);font-weight:700}
+.top .clk{text-align:left}
+.top .clk .t{font-size:24px;font-weight:700;line-height:1}
+.top .clk .p{font-size:10px;color:#9a9aae;margin-top:3px}
+.gear{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#ececf2;width:36px;height:36px;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.25s;flex-shrink:0}
+.gear:hover{background:rgba(255,255,255,.16);transform:rotate(35deg)}
+.dayprog{height:5px;border-radius:10px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:20px}
+.dayprog i{display:block;height:100%;border-radius:10px;transition:width 1s ease}
+.install{display:none;align-items:center;justify-content:center;gap:8px;width:100%;border:none;border-radius:14px;padding:13px;font-weight:800;font-family:inherit;font-size:14px;cursor:pointer;margin-bottom:18px;color:#07060d}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;grid-auto-rows:minmax(96px,auto)}
+@media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr)}}
+.tile{background:rgba(20,20,28,.52);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.09);border-radius:22px;padding:17px;position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.34,1.4,.5,1),border-color .3s,box-shadow .3s;animation:rise .6s both}
+.tile:active{transform:scale(.98)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.lab{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#9a9aae;font-weight:700;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.c2{grid-column:span 2}.r2{grid-row:span 2}
+.now{grid-column:span 2;grid-row:span 2;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(155deg,rgba(232,184,75,.16),rgba(20,20,28,.52));border-color:rgba(232,184,75,.3)}
+.now .ic{width:42px;height:42px;border-radius:13px;background:rgba(232,184,75,.18);display:flex;align-items:center;justify-content:center;color:#E8B84B}
+.now .badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#E8B84B;font-weight:700;margin-top:12px}
+.pulse{width:7px;height:7px;border-radius:50%;background:#E8B84B;animation:pls 2s infinite}
+@keyframes pls{0%{box-shadow:0 0 0 0 #E8B84B99}70%{box-shadow:0 0 0 9px #E8B84B00}100%{box-shadow:0 0 0 0 #E8B84B00}}
+.now .title{font-size:24px;font-weight:800;line-height:1.3;margin:8px 0}
+.now .time{font-size:13px;color:#d8c89a}
+.now .next{font-size:12px;color:#b8ad88;margin-top:8px;border-top:1px dashed rgba(232,184,75,.25);padding-top:10px}
+.now .next b{color:#E8B84B;font-weight:700}
+.pray{background:linear-gradient(155deg,rgba(79,209,197,.14),rgba(20,20,28,.52));border-color:rgba(79,209,197,.25)}
+.pray .nm{font-size:14px;color:#bdeae5;font-weight:700}
+.pray .big{font-size:28px;font-weight:700;color:#4FD1C5;letter-spacing:-.5px;margin-top:2px}
+.pray .sub{font-size:12px;color:#7fb8b2;margin-top:2px}
+.ring-wrap{display:flex;align-items:center;gap:14px}
+.ring{position:relative;width:60px;height:60px;flex-shrink:0}
+.ring svg{transform:rotate(-90deg)}
+.ring .pc{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.habits{display:flex;flex-direction:column;gap:6px;flex:1}
+.hb{display:flex;align-items:center;gap:9px;cursor:pointer;padding:5px 7px;border-radius:9px;transition:background .15s}
+.hb:active{background:rgba(255,255,255,.06)}
+.hbx{width:17px;height:17px;border-radius:5px;border:2px solid rgba(255,255,255,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s}
+.hbx.on{background:#4FD1C5;border-color:#4FD1C5}
+.hb.on span{color:#777;text-decoration:line-through}
+.hb span{font-size:13px}
+.qt{background:linear-gradient(155deg,rgba(201,162,39,.16),rgba(20,20,28,.52));border-color:rgba(201,162,39,.28)}
+.qt .ql{font-size:19px;font-weight:800;color:#C9A227;margin-top:2px}
+.qt .qs{font-size:12px;color:#a89660;margin-top:3px}
+.stat{display:flex;flex-direction:column}
+.stat .si{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.stat .n{font-size:28px;font-weight:700;line-height:1}
+.stat .t{font-size:11px;color:#9a9aae;margin-top:5px}
+.tlwrap{margin-top:26px}
+.tlwrap h3{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#9a9aae;margin-bottom:16px;font-weight:700;display:flex;align-items:center;gap:9px}
+.tlwrap h3::before{content:'';width:24px;height:2px;border-radius:2px;background:var(--accent)}
+.tl{position:relative;padding-right:18px}
+.tl::before{content:'';position:absolute;right:7px;top:8px;bottom:8px;width:2px;background:linear-gradient(rgba(255,255,255,.15),transparent)}
+.ev{position:relative;display:flex;gap:12px;padding-bottom:11px}
+.nd{position:absolute;right:-15px;top:9px;width:12px;height:12px;border-radius:50%;background:#07060d;border:2px solid rgba(255,255,255,.25);z-index:2;transition:.2s}
+.ev.now-ev .nd{background:#E8B84B;border-color:#E8B84B;box-shadow:0 0 12px #E8B84B;transform:scale(1.2)}
+.ev.past .bd{opacity:.4}
+.bd{flex:1;background:rgba(18,18,24,.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.07);border-radius:13px;padding:11px 14px;border-right:3px solid;margin-right:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;transition:.2s}
+.ev.now-ev .bd{background:rgba(232,184,75,.1);box-shadow:0 0 0 1px rgba(232,184,75,.3)}
+.bd .ttl{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700}
+.bd .ttl .ei{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bd .ttl.done{text-decoration:line-through;color:#5a5a64}
+.bd .tm{font-size:12px;color:#9a9aa4;white-space:nowrap}
+.row2{display:flex;align-items:center;gap:8px}
+.cb{width:18px;height:18px;border-radius:5px;border:2px solid rgba(255,255,255,.25);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cb.on{background:#4FD1C5;border-color:#4FD1C5}
+.dl{background:none;border:none;color:#5a5a64;cursor:pointer;display:flex;padding:2px}
+.add{position:fixed;bottom:0;left:0;right:0;background:rgba(12,11,18,.85);backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.1);padding:13px 16px calc(13px + env(safe-area-inset-bottom));display:flex;gap:8px;align-items:center;max-width:860px;margin:0 auto;z-index:5;flex-wrap:wrap}
+.add input[type=text]{flex:1;min-width:130px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:11px 14px;color:#fff;font-family:inherit;font-size:14px}
+.add input[type=time]{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px;color:#fff;font-family:'Sora',sans-serif;font-size:13px}
+.add select{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px;color:#fff;font-family:inherit;font-size:13px}
+.add input:focus,.add select:focus{outline:none;border-color:var(--accent)}
+.add button{border:none;border-radius:12px;padding:0 18px;height:42px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;color:#07060d}
+.sheet{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:flex;align-items:flex-end;justify-content:center;animation:fade .3s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheetbody{background:#13131b;border:1px solid rgba(255,255,255,.12);border-radius:24px 24px 0 0;width:100%;max-width:560px;padding:24px;max-height:80vh;overflow:auto;animation:up .35s cubic-bezier(.3,1.2,.5,1)}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheetbody h2{font-size:18px;margin-bottom:4px;font-weight:800}
+.sheetbody .pp{font-size:12px;color:#9a9aae;margin-bottom:18px}
+.tfgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tf{display:flex;flex-direction:column;gap:6px}
+.tf label{font-size:12px;color:#b8b8c8}
+.tf input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:9px;color:#fff;font-family:'Sora',sans-serif}
+.sheetbtns{display:flex;gap:10px;margin-top:20px}
+.sheetbtns button{flex:1;border:none;border-radius:12px;padding:13px;font-weight:800;cursor:pointer;font-family:inherit;font-size:14px}
+.breset{background:rgba(255,255,255,.08);color:#cfcfd8}
+</style>
+</head>
+<body>
+<div id="app" class="app"></div>
+
+<script>
+/* ============ data & schedule ============ */
+var OFF_DAYS=[5,6];
+var FALLBACK={Fajr:"03:40",Dhuhr:"11:45",Asr:"15:15",Maghrib:"18:35",Isha:"20:05"};
+var PRAYER_AR={Fajr:"الفجر",Dhuhr:"الظهر",Asr:"العصر",Maghrib:"المغرب",Isha:"العشاء"};
+var TYPE_LABEL={work:"دوام",prayer:"صلاة",quran:"قرآن",diet:"دايت",family:"عائلة",phone:"تلفون",sleep:"نوم",free:"حر",task:"تاسك"};
+var ACCENTS={work:"#E8B84B",prayer:"#4FD1C5",quran:"#C9A227",diet:"#F08C7D",family:"#8FA3E8",phone:"#B488E8",sleep:"#6a6a8a",free:"#9a9aa2",task:"#E8B84B"};
+var DEFAULT_TIMES={wardStart:"04:30",wardEnd:"05:00",workStart:"09:00",lunchStart:"12:15",lunchEnd:"13:00",workEnd:"17:00",dietStart:"20:45",dietEnd:"21:45",familyStart:"21:45",familyEnd:"22:45",phoneStart:"22:45",phoneEnd:"23:30",sleepStart:"23:30"};
+var PHASES={
+  dawn:{bg:"radial-gradient(1200px 700px at 70% -10%,#3a2f4a 0%,#1a1726 45%,#0c0a14 100%)",accent:"#E8A0C0",label:"الفجر"},
+  day:{bg:"radial-gradient(1200px 700px at 75% -15%,#1f3a4a 0%,#13222e 45%,#0a1118 100%)",accent:"#5BC8E8",label:"النهار"},
+  dusk:{bg:"radial-gradient(1200px 700px at 70% -10%,#4a2f1f 0%,#2a1812 45%,#140c0a 100%)",accent:"#F0944D",label:"المغرب"},
+  night:{bg:"radial-gradient(1200px 700px at 75% -15%,#1a1830 0%,#100e1c 45%,#07060d 100%)",accent:"#8FA3E8",label:"الليل"}
+};
+var TIME_FIELDS=[["workStart","بداية الدوام"],["workEnd","نهاية الدوام"],["wardStart","بداية الورد"],["wardEnd","نهاية الورد"],["dietStart","تحضير الوجبات"],["familyStart","وقت العائلة"],["phoneStart","وقت التلفون"],["sleepStart","وقت النوم"]];
+
+function toMin(t){var p=t.split(":");return +p[0]*60+ +p[1];}
+function fromMin(m){m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0");}
+function todayKey(){return new Date().toISOString().slice(0,10);}
+
+function quranActivity(d){
+  if(d===1||d===2||d===4||d===5)return{kind:"hifz",title:"حفظ صفحة جديدة",label:"حفظ"};
+  if(d===3)return{kind:"sama3",title:"تسميع (الإثنين + الثلاثاء)",label:"تسميع"};
+  if(d===0)return{kind:"sama3",title:"تسميع (الخميس + الجمعة)",label:"تسميع"};
+  return{kind:"sheikh",title:"سرد شامل مع الشيخ",label:"سرد مع الشيخ"};
+}
+function phaseFor(n,P){var f=toMin(P.Fajr),mg=toMin(P.Maghrib);if(n>=f&&n<f+90)return"dawn";if(n>=f+90&&n<mg-40)return"day";if(n>=mg-40&&n<mg+60)return"dusk";return"night";}
+
+function buildSchedule(P,d,T){
+  P=P||FALLBACK;var off=OFF_DAYS.indexOf(d)>=0;var q=quranActivity(d);var b=[];
+  function push(t,e,ty,ti){b.push({time:t,end:e,type:ty,title:ti,fixed:true});}
+  push(P.Fajr,T.wardStart,"prayer","صلاة الفجر");
+  push(T.wardStart,T.wardEnd,"quran","ورد القرآن الصباحي");
+  push(T.wardEnd,"08:00","sleep","نوم / راحة");
+  if(!off){
+    push("08:00",T.workStart,"free","تحضير + كوميوت");
+    push(T.workStart,P.Dhuhr,"work","دوام صباحي");
+    push(P.Dhuhr,T.lunchStart,"prayer","صلاة الظهر");
+    push(T.lunchStart,T.lunchEnd,"free","غدا / راحة");
+    push(T.lunchEnd,P.Asr,"work","دوام بعد الظهر");
+    push(P.Asr,"15:30","prayer","صلاة العصر");
+    push("15:30",T.workEnd,"work","استكمال الدوام");
+    push(T.workEnd,P.Maghrib,"free","كوميوت + راحة");
+  }else{
+    push("08:00","09:00","free","تحضير + فطار");
+    if(d===5){
+      push("09:00","11:30","free","وقت حر");
+      push("11:30",P.Dhuhr,"family","تجهيز صلاة الجمعة");
+      push(P.Dhuhr,"13:00","prayer","صلاة الجمعة");
+      push("13:00",P.Asr,"family","غدا العائلة");
+      push(P.Asr,"15:30","prayer","صلاة العصر");
+      push("15:30",P.Maghrib,"free","وقت حر");
+    }else{
+      push("09:00",P.Dhuhr,"free","وقت حر");
+      push(P.Dhuhr,"12:15","prayer","صلاة الظهر");
+      push("12:15",P.Asr,"family","غدا / عائلة");
+      push(P.Asr,"16:00","prayer","صلاة العصر");
+      push("16:00","18:00","quran","سرد شامل مع الشيخ");
+      push("18:00",P.Maghrib,"free","راحة");
+    }
+  }
+  push(P.Maghrib,fromMin(toMin(P.Maghrib)+25),"prayer","صلاة المغرب");
+  if(d!==6){
+    if(q.kind==="hifz")push(fromMin(toMin(P.Maghrib)+25),P.Isha,"quran",q.title);
+    else if(q.kind==="sama3")push("18:00","20:00","quran",q.title);
+  }
+  push(P.Isha,fromMin(toMin(P.Isha)+30),"prayer","صلاة العشاء");
+  push(T.dietStart,T.dietEnd,"diet","تحضير وجبات الليلة");
+  push(T.familyStart,T.familyEnd,"family","وقت العائلة");
+  push(T.phoneStart,T.phoneEnd,"phone","وقت التلفون");
+  push(T.sleepStart,P.Fajr,"sleep","نوم");
+  return b.sort(function(x,y){return toMin(x.time)-toMin(y.time);});
+}
+
+/* ============ flat svg icons ============ */
+function icon(type,size,color){
+  size=size||18;color=color||"currentColor";
+  var a='width="'+size+'" height="'+size+'" viewBox="0 0 24 24" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+  var P={
+    work:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+    prayer:'<path d="M12 3v18"/><path d="M5 21V11l7-5 7 5v10"/><path d="M9 21v-5a3 3 0 0 1 6 0v5"/>',
+    quran:'<path d="M4 5a2 2 0 0 1 2-2h11a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6a2 2 0 0 0-2 2z"/><path d="M9 7h6M9 11h5"/>',
+    diet:'<circle cx="12" cy="13" r="7"/><path d="M12 13l3-3"/><path d="M12 6V3"/>',
+    family:'<circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.2"/><path d="M3 20c0-3 2.5-5 5-5s5 2 5 5"/><path d="M14 20c0-2 1.3-3.6 3-3.6S20 18 20 20"/>',
+    phone:'<rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/>',
+    sleep:'<path d="M20 14a8 8 0 0 1-10-10 8 8 0 1 0 10 10z"/>',
+    free:'<path d="M5 8h11v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"/><path d="M16 9h2.5a2 2 0 0 1 0 4H16"/><path d="M8 3v2M11 3v2"/>',
+    task:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+    gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8 2 2 0 1 1-2.8 2.8 1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5 2 2 0 1 1-4 0 1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3 2 2 0 1 1-2.8-2.8 1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1 2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8 2 2 0 1 1 2.8-2.8 1.6 1.6 0 0 0 1.8.3 1.6 1.6 0 0 0 1-1.5 2 2 0 1 1 4 0 1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3 2 2 0 1 1 2.8 2.8 1.6 1.6 0 0 0-.3 1.8 1.6 1.6 0 0 0 1.5 1 2 2 0 1 1 0 4 1.6 1.6 0 0 0-1.5 1z"/>',
+    check:'<path d="M20 6 9 17l-5-5"/>',
+    plus:'<path d="M12 5v14M5 12h14"/>',
+    close:'<path d="M18 6 6 18M6 6l12 12"/>',
+    download:'<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/>'
+  };
+  return '<svg '+a+'>'+(P[type]||'<circle cx="12" cy="12" r="9"/>')+'</svg>';
+}
+function logo(accent){
+  return '<svg width="38" height="38" viewBox="0 0 48 48" fill="none">'+
+    '<rect x="2" y="2" width="44" height="44" rx="13" fill="#141420" stroke="'+accent+'" stroke-opacity="0.5" stroke-width="1.5"/>'+
+    '<circle cx="24" cy="24" r="14" stroke="'+accent+'" stroke-width="2.2" fill="none" opacity="0.4"/>'+
+    '<path d="M24 13v11l7 4" stroke="'+accent+'" stroke-width="2.6" stroke-linecap="round"/>'+
+    '<circle cx="24" cy="24" r="2.4" fill="'+accent+'"/></svg>';
+}
+
+/* ============ state ============ */
+function load(k,fb){try{var v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch(e){return fb;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+var day=todayKey();
+var S={prayers:null,tasks:load("tasks:"+day,[]),habits:load("habits:"+day,{}),times:load("times",DEFAULT_TIMES),now:new Date(),sheet:false,input:"",taskTime:"",taskType:"task"};
+var deferredPrompt=null;
+var HABITS=[["fajr","الفجر"],["ward","الورد"],["quran","حلقة القرآن"],["diet","الدايت"],["story","ستوري"]];
+
+function tint(hex,a){return hex+a;}
+
+/* ============ render ============ */
+function render(){
+  var P=S.prayers||FALLBACK;
+  var now=S.now;var nowMin=now.getHours()*60+now.getMinutes();
+  var d=now.getDay();
+  var T=S.times;
+  var sched=buildSchedule(S.prayers,d,T);
+  var extra=S.tasks.map(function(t){return{time:t.time||"12:00",end:null,type:t.type||"task",title:t.text,fixed:false,id:t.id,done:t.done};});
+  var tl=sched.concat(extra).sort(function(a,b){return toMin(a.time)-toMin(b.time);});
+  var curIdx=-1;
+  for(var i=0;i<tl.length;i++){var s=toMin(tl[i].time);var n=tl[i+1]?toMin(tl[i+1].time):1440;if(nowMin>=s&&nowMin<n){curIdx=i;break;}}
+  var current=tl[curIdx],nextBlock=tl[curIdx+1];
+  var plist=Object.keys(PRAYER_AR).map(function(k){return{k:k,name:PRAYER_AR[k],min:toMin(P[k])};});
+  var upcoming=null;for(var j=0;j<plist.length;j++){if(plist[j].min>nowMin){upcoming=plist[j];break;}}
+  if(!upcoming)upcoming={name:plist[0].name,min:plist[0].min+1440};
+  var toP=upcoming.min-nowMin;
+  var q=quranActivity(d);var off=OFF_DAYS.indexOf(d)>=0;
+  var phase=phaseFor(nowMin,P);var PH=PHASES[phase];
+  var dayPct=Math.round(nowMin/1440*100);
+  var openT=S.tasks.filter(function(t){return!t.done;}).length;
+  var hDone=HABITS.filter(function(h){return S.habits[h[0]];}).length;
+  var ring=Math.round(hDone/HABITS.length*100);
+  var greet=phase==="dawn"?"صباح الخير":phase==="day"?"نهارك سعيد":phase==="dusk"?"مساء الخير":"ليلة طيبة";
+  var dayName=now.toLocaleDateString("ar-EG",{weekday:"long"});
+  var dateStr=now.toLocaleDateString("ar-EG",{day:"numeric",month:"long"});
+  var clock=now.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+
+  var app=document.getElementById("app");
+  app.style.background=PH.bg;app.style.setProperty("--accent",PH.accent);
+
+  var stars="";
+  if(phase==="night"||phase==="dusk"){for(var st=0;st<26;st++){stars+='<span class="star" style="top:'+(Math.random()*45)+'%;left:'+(Math.random()*100)+'%;animation-delay:'+(Math.random()*4)+'s;animation-duration:'+(3+Math.random()*3)+'s"></span>';}}
+
+  var tlHtml="";
+  for(var k2=0;k2<tl.length;k2++){
+    var b=tl[k2];var s2=toMin(b.time);var n2=tl[k2+1]?toMin(tl[k2+1].time):1440;
+    var isNow=nowMin>=s2&&nowMin<n2;var isPast=n2<=nowMin;var col=ACCENTS[b.type];
+    tlHtml+='<div class="ev'+(isNow?' now-ev':'')+(isPast?' past':'')+'"><div class="nd"></div>'+
+      '<div class="bd" style="border-right-color:'+col+'">'+
+      '<div class="ttl'+(b.done?' done':'')+'"><span class="ei" style="background:'+tint(col,"22")+';color:'+col+'">'+icon(b.type,15,col)+'</span>'+b.title+'</div>'+
+      (b.fixed?'<div class="tm mono">'+b.time+(b.end?' – '+b.end:'')+'</div>':
+        '<div class="row2"><span class="tm mono">'+b.time+'</span><div class="cb'+(b.done?' on':'')+'" onclick="toggleTask('+b.id+')">'+(b.done?icon("check",11,"#07060d"):"")+'</div><button class="dl" onclick="delTask('+b.id+')">'+icon("close",15)+'</button></div>')+
+      '</div></div>';
+  }
+
+  var habHtml="";
+  for(var h=0;h<HABITS.length;h++){var on=S.habits[HABITS[h][0]];habHtml+='<div class="hb'+(on?' on':'')+'" onclick="toggleHabit(\''+HABITS[h][0]+'\')"><div class="hbx'+(on?' on':'')+'">'+(on?icon("check",11,"#07060d"):"")+'</div><span>'+HABITS[h][1]+'</span></div>';}
+
+  var typeOpts="";Object.keys(TYPE_LABEL).forEach(function(kk){typeOpts+='<option value="'+kk+'"'+(S.taskType===kk?' selected':'')+'>'+TYPE_LABEL[kk]+'</option>';});
+
+  var C=2*Math.PI*25;
+
+  var sheetHtml="";
+  if(S.sheet){
+    var tf="";TIME_FIELDS.forEach(function(f){tf+='<div class="tf"><label>'+f[1]+'</label><input type="time" value="'+T[f[0]]+'" oninput="setTime(\''+f[0]+'\',this.value)"></div>';});
+    sheetHtml='<div class="sheet" onclick="if(event.target.className===\'sheet\')closeSheet()"><div class="sheetbody"><h2>تحكّم في الجدول</h2><div class="pp">عدّل أوقات الجدول الثابت. الصلوات تلقائية من توقيت الكويت.</div><div class="tfgrid">'+tf+'</div><div class="sheetbtns"><button class="breset" onclick="resetTimes()">إعادة ضبط</button><button onclick="closeSheet()" style="background:'+PH.accent+';color:#07060d">تم</button></div></div></div>';
+  }
+
+  app.innerHTML=
+  '<div class="sky"><div class="orb" style="background:radial-gradient(circle at 35% 35%,'+PH.accent+',transparent 70%)"></div>'+stars+'</div>'+
+  '<div class="grain"></div>'+
+  '<div class="wrap">'+
+    '<div class="top"><div class="logo">'+logo(PH.accent)+'</div>'+
+      '<div class="who"><div class="g">'+greet+'، محمد</div><div class="sub"><span>'+dayName+' — '+dateStr+'</span><span class="chip" style="color:'+PH.accent+'">'+(off?"إجازة":"دوام")+'</span><span class="chip" style="color:'+PH.accent+'">'+PH.label+'</span></div></div>'+
+      '<div class="clk"><div class="t mono">'+clock+'</div><div class="p mono">'+dayPct+'% من اليوم</div></div>'+
+      '<button class="gear" onclick="openSheet()">'+icon("gear",17)+'</button></div>'+
+    '<button class="install" id="installBtn" style="background:'+PH.accent+'" onclick="doInstall()">'+icon("download",17,"#07060d")+' تثبيت التطبيق</button>'+
+    '<div class="dayprog"><i style="width:'+dayPct+'%;background:linear-gradient(90deg,'+PH.accent+','+PH.accent+');box-shadow:0 0 12px '+PH.accent+'"></i></div>'+
+    '<div class="grid">'+
+      '<div class="tile now"><div><div class="ic">'+icon(current?current.type:"task",22,"#E8B84B")+'</div><span class="badge"><span class="pulse"></span> الآن</span><div class="title">'+(current?current.title:"—")+'</div><div class="time mono">'+(current?current.time+(current.end?" – "+current.end:""):"")+'</div></div>'+(nextBlock?'<div class="next">التالي: <b>'+nextBlock.title+'</b> · <span class="mono">'+nextBlock.time+'</span></div>':'')+'</div>'+
+      '<div class="tile pray c2"><div class="lab">'+icon("prayer",13,"#4FD1C5")+' الصلاة القادمة</div><div class="nm">'+upcoming.name+'</div><div class="big mono">'+fromMin(upcoming.min)+'</div><div class="sub">باقي '+(toP>=60?Math.floor(toP/60)+"س "+(toP%60)+"د":toP+"د")+'</div></div>'+
+      '<div class="tile c2 r2"><div class="lab">'+icon("check",13,"#9a9aae")+' عادات اليوم</div><div class="ring-wrap"><div class="ring"><svg width="60" height="60"><circle cx="30" cy="30" r="25" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="6"/><circle cx="30" cy="30" r="25" fill="none" stroke="#4FD1C5" stroke-width="6" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+(C*(1-ring/100))+'" style="transition:stroke-dashoffset .6s"/></svg><div class="pc mono">'+ring+'%</div></div><div class="habits">'+habHtml+'</div></div></div>'+
+      '<div class="tile qt c2"><div class="lab">'+icon("quran",13,"#C9A227")+' قرآن اليوم</div><div class="ql">'+q.label+'</div><div class="qs">'+q.title+'</div></div>'+
+      '<div class="tile stat"><div class="lab">تاسكات</div><div class="si" style="background:rgba(232,184,75,.16);color:#E8B84B">'+icon("task",18,"#E8B84B")+'</div><div class="n mono" style="color:'+PH.accent+'">'+openT+'</div><div class="t">مفتوحة</div></div>'+
+      '<div class="tile stat"><div class="lab">الدايت</div><div class="si" style="background:rgba(240,140,125,.16);color:#F08C7D">'+icon("diet",18,"#F08C7D")+'</div><div class="n" style="font-size:18px;margin-top:2px">الليلة</div><div class="t">وجبة–وجبتين</div></div>'+
+    '</div>'+
+    '<div class="tlwrap"><h3>الخط الزمني الكامل</h3><div class="tl">'+tlHtml+'</div></div>'+
+  '</div>'+
+  '<div class="add"><input type="text" id="ti" placeholder="أضف نشاط / تاسك…" value="'+S.input.replace(/"/g,'&quot;')+'" oninput="S.input=this.value" onkeydown="if(event.key===\'Enter\')addTask()">'+
+    '<select onchange="S.taskType=this.value">'+typeOpts+'</select>'+
+    '<input type="time" value="'+S.taskTime+'" oninput="S.taskTime=this.value">'+
+    '<button style="background:'+PH.accent+'" onclick="addTask()">'+icon("plus",16,"#07060d")+' إضافة</button></div>'+
+  sheetHtml;
+
+  var ib=document.getElementById("installBtn");
+  if(ib&&deferredPrompt)ib.style.display="flex";
+}
+
+/* ============ actions ============ */
+function addTask(){var t=(S.input||"").trim();if(!t)return;S.tasks.push({id:Date.now(),text:t,time:S.taskTime||"12:00",type:S.taskType,done:false});save("tasks:"+day,S.tasks);S.input="";S.taskTime="";render();}
+function toggleTask(id){S.tasks=S.tasks.map(function(t){return t.id===id?Object.assign({},t,{done:!t.done}):t;});save("tasks:"+day,S.tasks);render();}
+function delTask(id){S.tasks=S.tasks.filter(function(t){return t.id!==id;});save("tasks:"+day,S.tasks);render();}
+function toggleHabit(id){S.habits=Object.assign({},S.habits);S.habits[id]=!S.habits[id];save("habits:"+day,S.habits);render();}
+function openSheet(){S.sheet=true;render();}
+function closeSheet(){S.sheet=false;render();}
+function setTime(k,v){S.times=Object.assign({},S.times);S.times[k]=v;save("times",S.times);render();}
+function resetTimes(){S.times=Object.assign({},DEFAULT_TIMES);save("times",S.times);render();}
+function doInstall(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(function(){deferredPrompt=null;var ib=document.getElementById("installBtn");if(ib)ib.style.display="none";});}}
+
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferredPrompt=e;var ib=document.getElementById("installBtn");if(ib)ib.style.display="flex";});
+
+/* ============ prayer fetch ============ */
+fetch("https://api.aladhan.com/v1/timingsByCity?city=Kuwait%20City&country=Kuwait&method=9")
+  .then(function(r){return r.json();})
+  .then(function(j){var t=j.data.timings;S.prayers={Fajr:t.Fajr,Dhuhr:t.Dhuhr,Asr:t.Asr,Maghrib:t.Maghrib,Isha:t.Isha};save("lastPrayers",S.prayers);render();})
+  .catch(function(){S.prayers=load("lastPrayers",FALLBACK);render();});
+
+setInterval(function(){S.now=new Date();render();},20000);
+render();
+
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});}
+</script>
+</body>
+</html>
